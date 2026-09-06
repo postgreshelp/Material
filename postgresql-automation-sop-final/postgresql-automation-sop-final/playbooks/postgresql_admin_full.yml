@@ -1,0 +1,138 @@
+---
+- name: PostgreSQL administration - full lab checks
+  hosts: postgresql
+  gather_facts: false
+
+  tasks:
+    - name: Get PostgreSQL version
+      community.postgresql.postgresql_query:
+        query: "SELECT version();"
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: postgres_version
+
+    - name: Display PostgreSQL version
+      ansible.builtin.debug:
+        var: postgres_version.query_result
+
+    - name: Get database size
+      community.postgresql.postgresql_query:
+        query: |
+          SELECT current_database() AS database_name,
+                 pg_size_pretty(pg_database_size(current_database())) AS database_size;
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: database_size
+
+    - name: Display database size
+      ansible.builtin.debug:
+        var: database_size.query_result
+
+    - name: Get connection count
+      community.postgresql.postgresql_query:
+        query: "SELECT count(*) AS connection_count FROM pg_stat_activity;"
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: connection_count
+
+    - name: Display connection count
+      ansible.builtin.debug:
+        var: connection_count.query_result
+
+    - name: Get active sessions
+      community.postgresql.postgresql_query:
+        query: |
+          SELECT pid, usename, datname, state, query
+          FROM pg_stat_activity
+          WHERE state = 'active'
+          ORDER BY pid;
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: active_sessions
+
+    - name: Display active sessions
+      ansible.builtin.debug:
+        var: active_sessions.query_result
+
+    - name: Check replication status
+      community.postgresql.postgresql_query:
+        query: |
+          SELECT pid, usename, client_addr, state, sync_state
+          FROM pg_stat_replication;
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: replication_status
+
+    - name: Display replication status
+      ansible.builtin.debug:
+        var: replication_status.query_result
+
+    - name: Create reporting role
+      community.postgresql.postgresql_user:
+        name: paylite_reporting
+        state: present
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+
+    - name: Grant CONNECT to reporting role
+      community.postgresql.postgresql_privs:
+        type: database
+        database: "{{ postgresql_database }}"
+        roles: paylite_reporting
+        privs: CONNECT
+        state: present
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+
+    - name: Analyze database
+      community.postgresql.postgresql_query:
+        query: "ANALYZE;"
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+
+    - name: Get selected PostgreSQL configuration
+      community.postgresql.postgresql_query:
+        query: |
+          SELECT name, setting, unit
+          FROM pg_settings
+          WHERE name IN (
+            'max_connections',
+            'shared_buffers',
+            'work_mem',
+            'maintenance_work_mem',
+            'effective_cache_size'
+          )
+          ORDER BY name;
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: postgres_configuration
+
+    - name: Display PostgreSQL configuration
+      ansible.builtin.debug:
+        var: postgres_configuration.query_result

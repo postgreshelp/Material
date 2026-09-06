@@ -1,0 +1,7 @@
+databaseChangeLog:
+
+  - include:
+      file: changelog/001-create-schema.sql
+
+  - include:
+      file: changelog/002-create-table.sql

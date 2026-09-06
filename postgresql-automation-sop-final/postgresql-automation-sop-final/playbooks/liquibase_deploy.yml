@@ -1,0 +1,65 @@
+---
+- name: Deploy database changes using Liquibase
+  hosts: postgresql
+  gather_facts: false
+
+  tasks:
+    - name: Check Liquibase installation
+      ansible.builtin.command:
+        cmd: liquibase --version
+      register: liquibase_version
+      changed_when: false
+
+    - name: Display Liquibase version
+      ansible.builtin.debug:
+        var: liquibase_version.stdout_lines
+
+    - name: Validate Liquibase changelog
+      ansible.builtin.command:
+        cmd: liquibase validate
+        chdir: "{{ playbook_dir }}/../liquibase"
+      register: liquibase_validate
+      changed_when: false
+
+    - name: Display Liquibase validation
+      ansible.builtin.debug:
+        var: liquibase_validate.stdout_lines
+
+    - name: Check Liquibase status
+      ansible.builtin.command:
+        cmd: liquibase status
+        chdir: "{{ playbook_dir }}/../liquibase"
+      register: liquibase_status
+      changed_when: false
+
+    - name: Display Liquibase status
+      ansible.builtin.debug:
+        var: liquibase_status.stdout_lines
+
+    - name: Apply Liquibase changes
+      ansible.builtin.command:
+        cmd: liquibase update
+        chdir: "{{ playbook_dir }}/../liquibase"
+      register: liquibase_update
+
+    - name: Display Liquibase update result
+      ansible.builtin.debug:
+        var: liquibase_update.stdout_lines
+
+    - name: Verify PayLite employee table
+      community.postgresql.postgresql_query:
+        query: |
+          SELECT table_schema, table_name
+          FROM information_schema.tables
+          WHERE table_schema = 'paylite'
+            AND table_name = 'employee';
+        login_host: "{{ postgresql_host }}"
+        login_port: "{{ postgresql_port }}"
+        login_user: "{{ postgresql_admin_user }}"
+        login_password: "{{ postgresql_admin_password }}"
+        login_db: "{{ postgresql_database }}"
+      register: employee_table
+
+    - name: Display PayLite employee table
+      ansible.builtin.debug:
+        var: employee_table.query_result

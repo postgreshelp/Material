@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Verify Tools') {
+            steps {
+                sh '''
+                    java -version
+                    ansible --version
+                    liquibase --version
+                '''
+            }
+        }
+
+        stage('PostgreSQL Administration') {
+            steps {
+                sh 'ansible-playbook playbooks/postgresql_admin.yml'
+            }
+        }
+
+        stage('Liquibase Deployment') {
+            steps {
+                sh 'ansible-playbook playbooks/liquibase_deploy.yml'
+            }
+        }
+    }
+}

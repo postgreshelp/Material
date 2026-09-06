@@ -1,0 +1,6 @@
+---
+postgresql_host: "mypgrds.cijxwe4ckz1m.us-east-1.rds.amazonaws.com"
+postgresql_port: 5432
+postgresql_admin_user: "postgres"
+postgresql_admin_password: "<RDS_PASSWORD>"
+postgresql_database: "postgres"
