@@ -118,9 +118,7 @@ sudo -u jenkins ansible-galaxy collection install community.postgresql
 ansible-playbook /opt/ansible-postgresql/playbooks/liquibase_deploy.yml
 ```
 
-curl -L -o lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
 
-ls -lh lib/postgresql.jar
 
 
 
