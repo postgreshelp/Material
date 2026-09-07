@@ -19,6 +19,7 @@ ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
 liquibase --version
 
 dnf install postgresql18-server
+curl -L -o /opt/liquibase/lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
 ```
 
 ### pull the files
@@ -87,7 +88,7 @@ ansible-playbook playbooks/postgresql_admin_full.yml
 curl -L -o lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
 ls -lh lib/postgresql.jar
 
- cd ~/ansible-postgresql/liquibase
+ cd /opt/ansible-postgresql/liquibase
 liquibase validate
 liquibase update
 liquibase status
