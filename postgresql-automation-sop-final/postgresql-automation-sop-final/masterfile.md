@@ -135,7 +135,7 @@ terraform import aws_vpc.b03_vpc vpc-02f476ec787e998c6
 
 ###output log
 
-
+```
 PS C:\Users\hp\Documents\Course\NewTerraform> terraform init   
 Initializing the backend...
 
@@ -171,7 +171,7 @@ The resources that were imported are shown above. These resources are now in
 your Terraform state and will henceforth be managed by Terraform.
 
 PS C:\Users\hp\Documents\Course\NewTerraform> 
-
+```
 #### Push everything to get
 
 ### To remove everything from git
