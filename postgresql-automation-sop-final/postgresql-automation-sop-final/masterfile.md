@@ -1,5 +1,31 @@
 ## Documentation
 
+Move initial files
+```
+cd C:\Users\hp\Documents\Course\ansible-postgresql
+
+Remove-Item -Recurse -Force .git
+
+git init
+
+git config user.name "Y_USER_NAME"
+git config user.email "Y_USER_EMAIL"
+
+git remote add origin https://github.com/postgreshelp/NewTerraform.git
+
+git add .
+
+git status
+
+git commit -m "Add Terraform VPC read and import examples"
+
+git branch -M master
+
+git push -u origin master
+```
+
+
+
 ### start with empty folder
 
 #### 1. Find/read the existing default VPC.
