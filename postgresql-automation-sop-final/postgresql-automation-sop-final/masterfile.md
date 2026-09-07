@@ -440,9 +440,9 @@ resource "aws_security_group" "bt01_aurora" {
 
   ingress {
     description = "PostgreSQL"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -488,6 +488,7 @@ resource "aws_rds_cluster_instance" "bt01_aurora" {
     Name = "bt01-aurora-instance-1"
   }
 }
+
 
 
 ```
