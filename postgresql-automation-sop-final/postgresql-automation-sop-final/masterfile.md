@@ -356,6 +356,7 @@ resource "aws_internet_gateway" "bt01-igw" {
 resource "aws_subnet" "bt01-public-subnet" {
   vpc_id                  = aws_vpc.bt01-vpc.id
   cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -364,8 +365,9 @@ resource "aws_subnet" "bt01-public-subnet" {
 }
 
 resource "aws_subnet" "bt01-private-subnet" {
-  vpc_id     = aws_vpc.bt01-vpc.id
-  cidr_block = "10.0.2.0/24"
+  vpc_id            = aws_vpc.bt01-vpc.id
+  availability_zone = "us-east-1b"
+  cidr_block        = "10.0.2.0/24"
 
   tags = {
     Name = "bt01-private-subnet"
