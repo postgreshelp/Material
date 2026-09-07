@@ -114,3 +114,65 @@ ansible-playbook /opt/ansible-postgresql/playbooks/liquibase_deploy.yml
 curl -L -o lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
 
 ls -lh lib/postgresql.jar
+
+
+
+Jenkins job
+
+Step 1 — Create a Freestyle Job
+
+In Jenkins:
+
+Dashboard → New Item
+
+Enter:
+
+Name: PayLite-Liquibase-Deploy
+
+Select:
+
+Freestyle project
+
+Click OK.
+
+Step 2 — Add the build command
+
+Scroll to:
+
+Build Steps → Add build step → Execute shell
+
+Enter:
+
+cd /root/ansible-postgresql
+
+ansible-playbook playbooks/liquibase_deploy.yml
+
+That's it.
+
+Our first Jenkins job is intentionally simple:
+
+Jenkins
+   ↓
+Execute shell
+   ↓
+ansible-playbook
+   ↓
+Liquibase
+   ↓
+RDS PostgreSQL
+
+Click:
+
+Save
+
+Step 3 — Run it
+
+Click:
+
+Build Now
+
+You should see:
+
+Build #1
+
+Click the build number → Console Output.
