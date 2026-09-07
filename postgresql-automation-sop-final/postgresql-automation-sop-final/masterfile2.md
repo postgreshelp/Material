@@ -62,7 +62,7 @@ localhost | SUCCESS => {
 ansible-galaxy collection install community.postgresql
 ansible-galaxy collection list | grep postgresql
 ```
-
+```
 ### Run playbooks
 ansible-playbook playbooks/postgresql_role.yml
 
@@ -109,7 +109,7 @@ sudo -u jenkins ansible-galaxy collection install community.postgresql
 
  sudo -u jenkins env ANSIBLE_CONFIG=/opt/ansible-postgresql/ansible.cfg \
 ansible-playbook /opt/ansible-postgresql/playbooks/liquibase_deploy.yml
-
+```
 
 curl -L -o lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
 
