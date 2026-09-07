@@ -1,4 +1,10 @@
 
+## in EC2
+cd /opt
+git clone https://github.com/postgreshelp/ansible-postgresql.git
+cd ansible-postgresql
+
+
 ### Install software
 
 ```
