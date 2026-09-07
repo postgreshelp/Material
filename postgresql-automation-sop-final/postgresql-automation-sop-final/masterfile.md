@@ -283,22 +283,23 @@ PS C:\Users\hp\Documents\Course\NewTerraform>
 ### aws-create-vpc.tf
 
 ```
-resource "aws_vpc" "new_vpc" {
-  cidr_block = "10.20.0.0/16"
+resource "aws_vpc" "bt01-vpc" {
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
-    Name = "NewTerraform-VPC"
+    Name = "bt01-vpc"
   }
 }
+
 ```
 
 ### outputs.tf
 ```
-output "new_vpc_id" {
+output "aws_vpc" {
   description = "ID of the newly created VPC"
-  value       = aws_vpc.new_vpc.id
+  value       = aws_vpc.bt01-vpc.id
 }
 ```
 
@@ -330,64 +331,54 @@ git push -u origin master
 ### add aws-networking.tf
 
 ```
-resource "aws_internet_gateway" "lab03_igw" {
-  vpc_id = aws_vpc.lab03_vpc.id
+resource "aws_internet_gateway" "bt01-igw" {
+  vpc_id = aws_vpc.bt01-vpc.id
 
   tags = {
-    Name = "LAB03-IGW"
+    Name = "bt01-igw"
   }
 }
 
-resource "aws_subnet" "lab03_public_subnet" {
-  vpc_id                  = aws_vpc.lab03_vpc.id
-  cidr_block              = "10.30.1.0/24"
-  availability_zone       = "us-east-1a"
+resource "aws_subnet" "bt01-public-subnet" {
+  vpc_id                  = aws_vpc.bt01-vpc.id
+  cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "LAB03-Public-Subnet"
+    Name = "bt01-public-subnet"
   }
 }
 
-resource "aws_route_table" "lab03_public_rt" {
-  vpc_id = aws_vpc.lab03_vpc.id
+resource "aws_subnet" "bt01-private-subnet" {
+  vpc_id     = aws_vpc.bt01-vpc.id
+  cidr_block = "10.0.2.0/24"
+
+  tags = {
+    Name = "bt01-private-subnet"
+  }
+}
+
+resource "aws_route_table" "bt01-route-table" {
+  vpc_id = aws_vpc.bt01-vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.lab03_igw.id
+    gateway_id = aws_internet_gateway.bt01-igw.id
   }
 
   tags = {
-    Name = "LAB03-Public-RT"
+    Name = "bt01-route-table"
   }
 }
 
-resource "aws_route_table_association" "lab03_public_rta" {
-  subnet_id      = aws_subnet.lab03_public_subnet.id
-  route_table_id = aws_route_table.lab03_public_rt.id
+resource "aws_route_table_association" "bt01-public-subnet-association" {
+  subnet_id      = aws_subnet.bt01-public-subnet.id
+  route_table_id = aws_route_table.bt01-route-table.id
 }
 
-resource "aws_security_group" "lab03_sg" {
-  name   = "LAB03-SG"
-  vpc_id = aws_vpc.lab03_vpc.id
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "LAB03-SG"
-  }
+resource "aws_route_table_association" "bt01-private-subnet-association" {
+  subnet_id      = aws_subnet.bt01-private-subnet.id
+  route_table_id = aws_route_table.bt01-route-table.id
 }
 ```
 
@@ -409,5 +400,87 @@ Plan: 5 to add, 0 to change, 0 to destroy.
 terraform apply
 ```
 
-### apply networking.tf
 ### apply aws-aurora.tf
+
+```
+##main content
+resource "aws_db_subnet_group" "bt01_aurora" {
+  name = "bt01-aurora-subnet-group"
+
+  subnet_ids = [
+    aws_subnet.bt01_public_subnet.id,
+    aws_subnet.bt01_private_subnet.id
+  ]
+
+  tags = {
+    Name = "bt01-aurora-subnet-group"
+  }
+}
+##define security groups
+resource "aws_security_group" "bt01_aurora" {
+  name        = "bt01-aurora-sg"
+  description = "Security group for Aurora PostgreSQL"
+  vpc_id      = aws_vpc.bt01_vpc.id
+
+  ingress {
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "bt01-aurora-sg"
+  }
+}
+## define aurora database
+resource "aws_rds_cluster" "bt01_aurora" {
+  cluster_identifier = "bt01-aurora"
+  engine             = "aurora-postgresql"
+
+  master_username = "postgres"
+  master_password = var.db_master_password
+
+  db_subnet_group_name   = aws_db_subnet_group.bt01_aurora.name
+  vpc_security_group_ids = [aws_security_group.bt01_aurora.id]
+
+  database_name = "paylite"
+
+  skip_final_snapshot = true
+
+  tags = {
+    Name = "bt01-aurora"
+  }
+}
+
+resource "aws_rds_cluster_instance" "bt01_aurora" {
+  identifier         = "bt01-aurora-instance-1"
+  cluster_identifier = aws_rds_cluster.bt01_aurora.id
+
+  instance_class = "db.t3.medium"
+  engine         = aws_rds_cluster.bt01_aurora.engine
+
+  tags = {
+    Name = "bt01-aurora-instance-1"
+  }
+}
+
+```
+
+```
+Apply changes
+
+```
+terraform fmt
+terraform validate
+terraform plan
+```
+```
