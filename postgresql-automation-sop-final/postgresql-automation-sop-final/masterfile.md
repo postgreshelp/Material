@@ -422,8 +422,8 @@ resource "aws_db_subnet_group" "bt01_aurora" {
   name = "bt01-aurora-subnet-group"
 
   subnet_ids = [
-    aws_subnet.bt01_public_subnet.id,
-    aws_subnet.bt01_private_subnet.id
+    aws_subnet.bt01-public-subnet.id,
+    aws_subnet.bt01-private-subnet.id
   ]
 
   tags = {
@@ -434,7 +434,7 @@ resource "aws_db_subnet_group" "bt01_aurora" {
 resource "aws_security_group" "bt01_aurora" {
   name        = "bt01-aurora-sg"
   description = "Security group for Aurora PostgreSQL"
-  vpc_id      = aws_vpc.bt01_vpc.id
+  vpc_id      = aws_vpc.bt01-vpc.id
 
   ingress {
     description = "PostgreSQL"
@@ -461,7 +461,7 @@ resource "aws_rds_cluster" "bt01_aurora" {
   engine             = "aurora-postgresql"
 
   master_username = "postgres"
-  master_password = var.db_master_password
+  master_password = "postgres"
 
   db_subnet_group_name   = aws_db_subnet_group.bt01_aurora.name
   vpc_security_group_ids = [aws_security_group.bt01_aurora.id]
@@ -486,6 +486,7 @@ resource "aws_rds_cluster_instance" "bt01_aurora" {
     Name = "bt01-aurora-instance-1"
   }
 }
+
 
 ```
 
