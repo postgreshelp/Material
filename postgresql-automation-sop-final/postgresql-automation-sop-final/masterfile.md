@@ -36,7 +36,7 @@ terraform {
 	required_providers {
 		aws = {
 			source  = "hashicorp/aws"
-			version = "~> 5.0"
+			version = "6.63.0"
 		}
 	}
 }
@@ -156,7 +156,7 @@ Run the below commands
 ```
 Terraform init
 Terraform validate
-terraform import aws_vpc.b03_vpc vpc-02f476ec787e998c6
+terraform import aws_vpc.default-import vpc-02f476ec787e998c6
 ```
 
 ###output log
