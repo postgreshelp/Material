@@ -180,4 +180,23 @@ You should see:
 
 Build #1
 
-Click the build number → Console Output.
+Click the build number → Console Output..
+
+
+## temp space issue
+
+Do this in Jenkins UI
+
+Go to:
+
+Manage Jenkins → Nodes → Built-In Node → Configure
+
+Find Node Properties / Node Monitors and look for:
+
+Disk Space Monitoring Threshold
+
+Set it to something below your /tmp size, for example:
+
+500 MB
+
+If Jenkins shows the threshold in bytes, use:
